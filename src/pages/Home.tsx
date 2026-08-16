@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <>
       {/* ---------------------------------------------------------------- Hero */}
-      <section className="relative overflow-hidden bg-cream-100 pt-10 pb-20 sm:pt-16 lg:pt-20 lg:pb-28">
+      {/* <section className="relative overflow-hidden bg-cream-100 pt-10 pb-20 sm:pt-16 lg:pt-20 lg:pb-28">
         <Container width="wide">
           <div className="grid items-end gap-12 lg:grid-cols-12 lg:gap-16">
             <Reveal className="lg:col-span-7">
@@ -54,7 +54,112 @@ export default function Home() {
             </Reveal>
           </div>
         </Container>
-      </section>
+      </section> */}
+      <section className="relative overflow-hidden bg-cream-100 py-14 sm:py-16 lg:py-20">
+  <Container width="wide">
+    <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16 xl:gap-20">
+
+      {/* LEFT — Hero Content */}
+      <Reveal className="lg:col-span-7">
+        <div className="max-w-2xl">
+
+          <p className="eyebrow">
+            Guest Management · Event Operations
+          </p>
+
+          <h1 className="mt-5 text-[2.75rem] leading-[1.02] sm:text-6xl lg:text-[4.5rem] xl:text-[5rem]">
+            Every guest arrives
+            <br />
+            <span className="italic text-bronze-600">
+              expected.
+            </span>
+          </h1>
+
+          <p className="mt-7 max-w-xl text-base leading-7 text-ink-500 sm:text-lg sm:leading-8">
+            SoftInvites orchestrates seamless, tech-driven guest experiences
+            and secure access logistics for world-class events — from our hub
+            in Lagos to event destinations across the globe.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Cta to="/contact">
+              Plan Your Event
+            </Cta>
+
+            <Cta to="/work" variant="outline">
+              See Our Work
+            </Cta>
+          </div>
+
+          {/* Small credibility / service indicators */}
+          <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-ink-200/70 pt-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-bronze-600">
+                Guest Experience
+              </p>
+              <p className="mt-1 text-sm text-ink-500">
+                Seamless & personal
+              </p>
+            </div>
+
+            <div className="h-8 w-px bg-ink-200 hidden sm:block" />
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-bronze-600">
+                Event Access
+              </p>
+              <p className="mt-1 text-sm text-ink-500">
+                Secure & effortless
+              </p>
+            </div>
+
+            <div className="h-8 w-px bg-ink-200 hidden sm:block" />
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-bronze-600">
+                Built in Lagos
+              </p>
+              <p className="mt-1 text-sm text-ink-500">
+                Global event ready
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </Reveal>
+
+      {/* RIGHT — Hero Image */}
+      <Reveal delay={150} className="lg:col-span-5">
+        <div className="relative mx-auto w-full max-w-[540px] lg:ml-auto">
+
+          {/* Decorative frame */}
+          <div className="absolute -right-3 -top-3 h-full w-full border border-bronze-300/50 sm:-right-4 sm:-top-4" />
+
+          <div className="relative overflow-hidden">
+            <Image
+              src="/media/hero/hero-primary.jpg"
+              alt="Guests being welcomed and accredited at a SoftInvites-managed event"
+              ratio="tall"
+              priority
+            />
+
+            {/* Image caption */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent px-6 pb-5 pt-16">
+              <p className="text-xs uppercase tracking-[0.2em] text-white/80">
+                SoftInvites
+              </p>
+              <p className="mt-1 text-sm text-white">
+                Every detail, thoughtfully managed.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </Reveal>
+
+    </div>
+  </Container>
+</section>
 
       {/* ------------------------------------------------------------- Metrics */}
       <Section tone="ink" className="py-16 sm:py-20 lg:py-24">
