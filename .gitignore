@@ -4,6 +4,10 @@ dist-ssr
 .vercel
 .DS_Store
 *.local
+
+# TypeScript incremental build state. Machine-specific and stale by definition
+# in CI — a committed copy can make `tsc -b` skip typechecking on Vercel.
+*.tsbuildinfo
 .env
 .env.*
 !.env.example
