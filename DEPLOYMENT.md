@@ -7,9 +7,9 @@ Three projects change together. Deploy them in this order — each step is safe 
 | 1 | `software-Invite-API` | New `/contact` endpoint + admin email notification |
 | 2 | `Softinvites-website-QR` | New **Enquiries** page in the dashboard |
 | 3 | `softinvites-web` | The brand website itself (new Vercel project) |
-| 4 | `Softinvites-website-QR` | Rewrites that put the brand site on `softinvite.com` |
+| 4 | Vercel dashboard | Move `softinvite.com` onto the brand site |
 
-Nothing about guest-facing RSVP links (`/r/*`, `/rsvp/*`) changes at any point. The domain never moves. See [SINGLE-DOMAIN-SETUP.md](./SINGLE-DOMAIN-SETUP.md) for why.
+Guest-facing RSVP URLs (`/r/*`, `/rsvp/*`) stay byte-for-byte identical — they are proxied, not redirected, so nothing already sent to a guest breaks. Only Step 4 is visible to visitors. See [SINGLE-DOMAIN-SETUP.md](./SINGLE-DOMAIN-SETUP.md) for the architecture.
 
 ---
 
@@ -70,7 +70,7 @@ cd Softinvites-website-QR
 npm run build     # confirm it builds before pushing
 ```
 
-Push to the branch Vercel deploys. **Do not add the rewrites yet** — that is Step 4.
+Push to the branch Vercel deploys. Its `vercel.json` is just the SPA fallback now — the brand site owns the routing.
 
 Verify: sign in, open **Enquiries** in the sidebar, confirm the test enquiry from Step 1.3 appears. Open it, change its status, save, then delete it.
 
@@ -85,7 +85,7 @@ Import `softinvites-web/` as a **new** Vercel project.
 - Framework preset: **Vite**
 - Build command: `npm run build` (already in `vercel.json`)
 - Output directory: `dist`
-- **Do not add a custom domain.** It is served through the web app's domain.
+- Leave the custom domain off until Step 4 — verify on the `*.vercel.app` URL first.
 
 ### 3.2 Environment variables
 
@@ -100,7 +100,7 @@ VITE_SITE_ORIGIN=https://www.softinvite.com
 
 ### 3.3 Turn off Deployment Protection
 
-Settings → Deployment Protection → make sure **production** is not password-protected. If it is, the rewrite in Step 4 fetches an auth page instead of the site.
+Settings → Deployment Protection → make sure **production** is not password-protected. If it is, the proxied app routes fetch an auth page instead of the app.
 
 ### 3.4 Verify on the preview URL
 
@@ -117,23 +117,50 @@ Open `https://<your-project>.vercel.app` and check:
 
 ---
 
-## Step 4 — Put the brand site on the domain
+## Step 4 — Move the domain to the brand site
 
-### 4.1 Point the rewrites at the real URL
+The brand site takes `softinvite.com`; the app keeps serving its routes through
+proxy rewrites already configured in
+[`softinvites-web/vercel.json`](./vercel.json), pointed at
+`https://softinvites-website-qr.vercel.app`.
 
-In [`Softinvites-website-QR/vercel.json`](../Softinvites-website-QR/vercel.json), replace every occurrence of `https://softinvites-web.vercel.app` with the production URL from Step 3.
+> **Why this direction:** Vercel gives the filesystem precedence over rewrites,
+> so a `"source": "/"` rewrite in the app project can never fire — it ships an
+> `index.html`. See [SINGLE-DOMAIN-SETUP.md](./SINGLE-DOMAIN-SETUP.md).
+
+Steps 4.1–4.3 leave the domain unassigned for a few minutes. Do them
+back-to-back, at a quiet hour. RSVP links are down during that window.
+
+### 4.1 Confirm the app answers on its own URL
 
 ```bash
-cd Softinvites-website-QR
-sed -i '' 's|https://softinvites-web.vercel.app|https://YOUR-REAL-URL.vercel.app|g' vercel.json
-grep -c "YOUR-REAL-URL" vercel.json   # expect 11
+for p in /sign-in /home /r/testtoken /rsvp/form/testtoken /favicon.ico; do
+  printf "%-24s " "$p"
+  curl -s -o /dev/null -w "%{http_code}\n" "https://softinvites-website-qr.vercel.app$p"
+done
 ```
 
-### 4.2 Deploy
+All must be `200`. If any 404s, fix that before touching the domain.
 
-Push. This single deploy is the entire cutover.
+### 4.2 Release the domain from the app
 
-### 4.3 Verify end to end
+Vercel → **Softinvites-website-QR** → Settings → Domains → remove
+`softinvite.com` **and** `www.softinvite.com`. A domain can only belong to one
+project at a time.
+
+### 4.3 Assign it to the brand site
+
+Vercel → **softinvites-web** → Settings → Domains → add `www.softinvite.com`,
+then `softinvite.com` set to **redirect to** `www.softinvite.com`.
+
+The `www` form must stay canonical: it is what `VITE_SITE_ORIGIN` and every
+canonical tag, `sitemap.xml` entry and JSON-LD URL already use. Wait for
+**Valid Configuration** and a fresh certificate on both.
+
+DNS does not change — both projects are on Vercel, so only the project
+assignment moves.
+
+### 4.4 Verify end to end
 
 ```bash
 # Brand pages — 200 with distinct titles
@@ -145,7 +172,7 @@ done
 curl -s https://www.softinvite.com/sitemap.xml | head -3
 curl -s https://www.softinvite.com/robots.txt
 
-# App routes — still served directly, NOT proxied
+# App routes — proxied, must be 200
 curl -sI https://www.softinvite.com/sign-in | grep -i "^HTTP"
 curl -sI https://www.softinvite.com/login   | grep -Ei "^(HTTP|location)"   # 307 → /sign-in
 
@@ -177,12 +204,12 @@ Each step reverses independently:
 
 | Step | Rollback |
 | ---- | -------- |
-| 4 | Delete the `redirects` and marketing `rewrites` from the app's `vercel.json` (keep the SPA catch-all), redeploy. Domain serves the app exactly as before. |
-| 3 | Delete the Vercel project. Nothing else references it once Step 4 is rolled back. |
+| 4 | Reassign `softinvite.com` + `www` back to `Softinvites-website-QR` in Vercel. Its config is already the plain SPA fallback, so it serves exactly as before. DNS never changes. |
+| 3 | Delete the Vercel project once Step 4 is rolled back. |
 | 2 | Revert the commit. The Enquiries page is additive — no existing route changes. |
 | 1 | Revert the commit. `/contact` is a new mount; nothing else touches it. |
 
-Step 4 is the only one visitors notice, and it is a one-file change.
+Step 4 is the only one visitors notice, and it is a domain reassignment in the dashboard — no code change, no DNS edit.
 
 ---
 

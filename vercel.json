@@ -5,6 +5,30 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/login", "destination": "/sign-in", "permanent": false },
+    { "source": "/signin", "destination": "/sign-in", "permanent": false },
+    { "source": "/dashboard", "destination": "/home", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/sign-in", "destination": "https://softinvites-website-qr.vercel.app/sign-in" },
+    { "source": "/sign_up", "destination": "https://softinvites-website-qr.vercel.app/sign_up" },
+    { "source": "/home", "destination": "https://softinvites-website-qr.vercel.app/home" },
+    { "source": "/event", "destination": "https://softinvites-website-qr.vercel.app/event" },
+    { "source": "/guest", "destination": "https://softinvites-website-qr.vercel.app/guest" },
+    { "source": "/rsvp-admin", "destination": "https://softinvites-website-qr.vercel.app/rsvp-admin" },
+    { "source": "/enquiries", "destination": "https://softinvites-website-qr.vercel.app/enquiries" },
+    {
+      "source": "/whatsapp-templates",
+      "destination": "https://softinvites-website-qr.vercel.app/whatsapp-templates"
+    },
+    { "source": "/profile", "destination": "https://softinvites-website-qr.vercel.app/profile" },
+    { "source": "/change-password", "destination": "https://softinvites-website-qr.vercel.app/change-password" },
+    { "source": "/rsvp/:path*", "destination": "https://softinvites-website-qr.vercel.app/rsvp/:path*" },
+    { "source": "/r/:path*", "destination": "https://softinvites-website-qr.vercel.app/r/:path*" },
+    { "source": "/assets/:path*", "destination": "https://softinvites-website-qr.vercel.app/assets/:path*" },
+    { "source": "/favicon.ico", "destination": "https://softinvites-website-qr.vercel.app/favicon.ico" }
+  ],
   "headers": [
     {
       "source": "/site-assets/(.*)",
@@ -19,7 +43,11 @@
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        }
       ]
     }
   ]
